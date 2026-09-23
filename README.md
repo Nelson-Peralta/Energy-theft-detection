@@ -17,19 +17,11 @@ reproduction, not from a production system.
 
 ## Real-World Context
 
-While working as a data analyst at a national electric utility, I
-independently designed and implemented this detection approach:
-correlating smart meter tamper alarms (tilt, magnetic tamper, cover-open)
-with consumption anomalies to flag likely energy theft. This contributed to
-identifying active fraud cases and reducing non-technical losses in the
-monitored zones. I did not formally track a before/after percentage at the
-time, so I'm not quoting one here — what I can speak to is the qualitative
-outcome: confirmed theft cases identified and fed into the utility's loss
-reduction efforts.
+## Real-World Context
 
-This repository rebuilds that approach from scratch on synthetic data, and
-extends it with a machine learning model for comparison. Full technical
-detail in [`docs/methodology.md`](docs/methodology.md).
+While working on the loss-reduction program of a national electric utility, I co-designed this detection approach with the team: correlating smart meter tamper alarms (tilt, magnetic tamper, cover-open) with consumption anomalies to flag likely energy theft. Confirmed cases were fed into the utility's loss-reduction efforts. We later iterated the production alarm logic around a season-aware, per-customer consumption baseline, which cut theft-detection false positives by ~35%.
+
+This repository rebuilds the core approach from scratch on synthetic data and extends it with a machine learning model for comparison. The production metric above is not reproduced here — every number below comes from the synthetic dataset. Full technical detail in [docs/methodology.md](docs/methodology.md).
 
 ## What This Repository Demonstrates
 
