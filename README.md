@@ -17,8 +17,6 @@ reproduction, not from a production system.
 
 ## Real-World Context
 
-## Real-World Context
-
 While working on the loss-reduction program of a national electric utility, I co-designed this detection approach with the team: correlating smart meter tamper alarms (tilt, magnetic tamper, cover-open) with consumption anomalies to flag likely energy theft. Confirmed cases were fed into the utility's loss-reduction efforts. We later iterated the production alarm logic around a season-aware, per-customer consumption baseline, which cut theft-detection false positives by ~35%.
 
 This repository rebuilds the core approach from scratch on synthetic data and extends it with a machine learning model for comparison. The production metric above is not reproduced here — every number below comes from the synthetic dataset. Full technical detail in [docs/methodology.md](docs/methodology.md).
@@ -42,14 +40,29 @@ This repository rebuilds the core approach from scratch on synthetic data and ex
 | Isolation Forest | 0.800 | 0.800 | 0.800 | 50 |
 | Ensemble (rule OR model) | 0.828 | 0.960 | 0.889 | 58 |
 
-**Interpretation:** the rule-based method almost never sends a false lead to
-the field team (precision 1.0), but misses 6 of 50 fraud cases where the
-alarm never fired or wasn't logged. The Isolation Forest model catches more
-of those "quiet" cases by reading the consumption pattern alone, at the
-cost of more false positives. Combining both pushes recall to 0.96 — in
-fraud detection, sending a field crew to check a few extra false leads is
-usually cheaper than missing a real theft case that keeps costing the
-utility money every month.
+**Interpretation:** on this synthetic set, the rule-based method sends no
+false leads to the field team (precision 1.0) but misses 6 of 50 fraud
+cases where the alarm never fired or wasn't logged. The Isolation Forest
+model catches more of those "quiet" cases by reading the consumption
+pattern alone, at the cost of more false positives. Combining both pushes
+recall to 0.96 — in fraud detection, sending a field crew to check a few
+extra leads is usually cheaper than missing a real theft case that keeps
+costing the utility money every month.
+
+### Limitations
+
+These results are optimistic by design and should be read as a methodology
+demo, not as expected production performance:
+
+- The synthetic generator injects fraud with the same pattern the rule
+  looks for (sustained drop + tamper alarm), so the rule's perfect
+  precision is partly circular.
+- The Isolation Forest `contamination` parameter is set to the known fraud
+  rate (10%) — information a real utility wouldn't have.
+- The data lacks the realistic confounders (seasonality, vacant properties,
+  meter replacements) that drive most false positives in production.
+
+v2 (in progress) addresses all three.
 
 ![Consumption example](outputs/consumption_example.png)
 ![Drop vs alarms](outputs/drop_vs_alarms.png)
@@ -99,11 +112,14 @@ Python · pandas · scikit-learn · matplotlib · Jupyter
 
 ## Status
 
-Core pipeline complete: data generation, feature engineering, rule-based
-detection, Isolation Forest model, and evaluation are all implemented and
-reproducible. Possible next steps: a Grafana dashboard for real-time
-monitoring (the tool actually used in the original ENEE implementation),
-and calibrating thresholds per zone instead of globally.
+**v1 (this version):** data generation, feature engineering, rule-based
+detection, Isolation Forest model and evaluation — implemented and
+reproducible.
+
+**v2 (in progress):** rebuilt pipeline with realistic confounders,
+dbt-duckdb staging and feature models with tests, leakage-free top-K
+evaluation by zone and time, pytest and CI. Next: Airflow orchestration in
+Docker and per-zone threshold calibration.
 
 ## License
 
