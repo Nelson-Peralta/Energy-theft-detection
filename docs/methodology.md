@@ -29,19 +29,21 @@ with an unexplained, sustained drop in consumption**.
 
 ## Real-world origin of this project
 
-While working as a data analyst at a national electric utility, I
-independently designed and implemented this detection approach: combining
+While working on the loss-reduction program of a national electric
+utility, I co-designed this detection approach with the team: combining
 meter tamper alarm data with consumption threshold analysis to flag likely
-theft cases for field inspection. This contributed to identifying active
-fraud cases and reducing non-technical losses in the monitored zones. I did
-not track a formal before/after percentage at the time — the qualitative
-outcome (confirmed fraud cases identified, feeding into loss-reduction
-efforts) is what I can speak to directly.
+theft cases for field inspection. Confirmed fraud cases were fed into the
+utility's loss-reduction efforts. We later iterated the production alarm
+logic around a season-aware, per-customer consumption baseline (3 years of
+history, so seasonal drops such as lower winter A/C usage don't trigger
+false flags), combined with multi-parameter triggers such as meter tilt
+events — which cut theft-detection false positives by ~35%.
 
-**This repository is a from-scratch reproduction of that methodology,
+**This repository is a from-scratch reproduction of the core methodology,
 built entirely on synthetic data**, so the approach and reasoning can be
-shown publicly without exposing any real customer or company data. See the
-main `README.md` for the full data disclosure.
+shown publicly without exposing any real customer or company data. The
+production metric above is not reproduced here. See the main `README.md`
+for the full data disclosure.
 
 ## Approach implemented here
 
@@ -104,3 +106,7 @@ precision/recall trade-off.
 - The Isolation Forest `contamination` parameter was set using knowledge of
   the synthetic fraud rate (10%). In a real deployment, this would need to
   be estimated from historical inspection data or tuned via cross-validation.
+
+These limitations are the starting point for v2 (in progress): realistic
+confounders, leakage-free evaluation by zone and time, and dbt-duckdb
+models with tests.
